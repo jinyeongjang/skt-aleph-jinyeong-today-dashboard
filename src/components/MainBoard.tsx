@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AlertCircle,
   AlertTriangle,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { ComparisonResult, NormalizedReading, ReadingStatus } from '../types/board';
 import { formatKstDateTime } from '../utils/kst';
+import NumberFlow from '@number-flow/react';
 
 interface MainBoardProps {
   currentReading: NormalizedReading | null;
@@ -44,6 +45,22 @@ export const MainBoard: React.FC<MainBoardProps> = ({
   const isStale = status?.freshness === 'stale';
   const errorCode = status?.error_code || 'none';
 
+  const targetValue = currentReading?.normalized_value ?? 0;
+  const targetDelta = lastDelta !== null ? Math.abs(lastDelta) : 0;
+
+  // 페이지 진입 즉시 0에서 목표값으로 NumberFlow 애니메이션이 발동하도록 상태 관리
+  const [animatedValue, setAnimatedValue] = useState<number>(0);
+  const [animatedDelta, setAnimatedDelta] = useState<number>(0);
+
+  useEffect(() => {
+    // 마운트 및 값 갱신 시 다음 애니메이션 프레임에서 목표값으로 부드럽게 전이
+    const frameId = requestAnimationFrame(() => {
+      setAnimatedValue(targetValue);
+      setAnimatedDelta(targetDelta);
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, [targetValue, targetDelta]);
+
   // 어제 대비 변화값 텍스트 및 스타일 계산
   const renderDelta = () => {
     if (comparison.state === 'insufficient') {
@@ -67,8 +84,14 @@ export const MainBoard: React.FC<MainBoardProps> = ({
       return (
         <div className="flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600 shadow-xs dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-400">
           <ArrowUpRight className="h-4 w-4 text-rose-500" />
-          <span>
-            어제 대비 +{lastDelta} {comparison.unit} 증가
+          <span className="inline-flex items-center gap-0.5">
+            어제 대비 +
+            <NumberFlow
+              value={animatedDelta}
+              trend={1}
+              spinTiming={{ duration: 650, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+            />{' '}
+            {comparison.unit} 증가
           </span>
         </div>
       );
@@ -77,8 +100,14 @@ export const MainBoard: React.FC<MainBoardProps> = ({
       return (
         <div className="flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 shadow-xs dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400">
           <ArrowDownRight className="h-4 w-4 text-blue-500" />
-          <span>
-            어제 대비 -{lastDelta} {comparison.unit} 감소
+          <span className="inline-flex items-center gap-0.5">
+            어제 대비 -
+            <NumberFlow
+              value={animatedDelta}
+              trend={-1}
+              spinTiming={{ duration: 650, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+            />{' '}
+            {comparison.unit} 감소
           </span>
         </div>
       );
@@ -218,7 +247,15 @@ export const MainBoard: React.FC<MainBoardProps> = ({
 
             <div className="flex items-baseline gap-3">
               <span className="text-5xl font-black tracking-tight text-neutral-900 tabular-nums sm:text-6xl md:text-7xl dark:text-white">
-                {currentReading !== null ? currentReading.normalized_value.toLocaleString() : '---'}
+                {currentReading !== null ? (
+                  <NumberFlow
+                    value={animatedValue}
+                    trend={1}
+                    spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                  />
+                ) : (
+                  '---'
+                )}
               </span>
               <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
                 {currentReading?.unit || ''}
@@ -246,7 +283,16 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                 값 및 측정 단위 (T04-C04, C05)
               </span>
               <span className="mt-1 block text-base font-bold text-neutral-900 dark:text-neutral-100">
-                {currentReading?.normalized_value ?? '---'} {currentReading?.unit ?? ''}
+                {currentReading !== null ? (
+                  <NumberFlow
+                    value={animatedValue}
+                    trend={1}
+                    spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                  />
+                ) : (
+                  '---'
+                )}{' '}
+                {currentReading?.unit ?? ''}
               </span>
             </div>
           </div>
