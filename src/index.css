@@ -146,3 +146,41 @@ html.dark .glass-glow {
 .active-press:active {
   transform: scale(0.98);
 }
+
+/* 빛이 지나가는 광원 효과 (Light Sweep Animation) */
+@keyframes light-sweep {
+  0% {
+    transform: translateX(-160%) skewX(-25deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  45% {
+    transform: translateX(280%) skewX(-25deg);
+    opacity: 0.85;
+  }
+  60%,
+  100% {
+    transform: translateX(280%) skewX(-25deg);
+    opacity: 0;
+  }
+}
+
+.animate-light-sweep {
+  animation: light-sweep 6.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* 테두리를 따라 빛이 회전하며 지나가는 광원 효과 (Border Beam Animation) */
+@keyframes border-beam {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.animate-border-beam {
+  animation: border-beam 7s linear infinite;
+}

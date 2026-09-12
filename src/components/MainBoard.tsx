@@ -194,191 +194,215 @@ export const MainBoard: React.FC<MainBoardProps> = ({
       {/* Top Banner for Failure (if stale) */}
       {renderErrorGuide()}
 
-      {/* Main Glass Card Container */}
-      <div className="glass-panel glass-glow rounded-3xl p-6 shadow-md transition-all sm:p-9">
-        {/* Card Header: Mode & Source Selector */}
-        <div className="flex flex-col justify-between gap-4 border-b border-neutral-100 pb-6 sm:flex-row sm:items-center dark:border-neutral-800">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full border border-blue-200 bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
-                {activeMode === 'live' ? '실제 비개인 공개 원천' : 'ALEPH 결정론적 합성 Fixture'}
-              </span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                기준 시간대: {currentReading?.record_timezone || 'Asia/Seoul'}
-              </span>
-            </div>
-            <h2 className="mt-1.5 text-xl font-black tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">
-              {currentReading?.source_name || '실시간 정보판 관측소'}
-            </h2>
+      {/* Main Glass Card Wrapper with Animated Border Glow */}
+      <div className="relative overflow-hidden rounded-3xl p-[1.5px] shadow-2xl shadow-blue-500/10 transition-all dark:shadow-blue-950/30">
+        {/* Animated Border Light Beam (Rotating Conic Gradient) */}
+        <div className="animate-border-beam pointer-events-none absolute top-1/2 left-1/2 -z-0 aspect-square w-[350%] transform-gpu bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_60deg,rgba(59,130,246,0.15)_80deg,rgba(96,165,250,0.85)_98deg,#ffffff_105deg,rgba(96,165,250,0.85)_112deg,rgba(59,130,246,0.15)_130deg,transparent_150deg,transparent_360deg)] opacity-90 dark:opacity-100" />
+
+        {/* Soft Glowing Bloom behind border for radiant light emission */}
+        <div className="animate-border-beam pointer-events-none absolute top-1/2 left-1/2 -z-0 aspect-square w-[350%] transform-gpu bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_75deg,rgba(59,130,246,0.4)_95deg,rgba(147,197,253,0.9)_105deg,rgba(59,130,246,0.4)_115deg,transparent_135deg,transparent_360deg)] opacity-70 blur-xs" />
+
+        {/* Static Subtle Border Underlay so border is always visible */}
+        <div className="pointer-events-none absolute inset-0 z-0 rounded-3xl border border-blue-200/60 dark:border-blue-500/25" />
+
+        {/* Main Inner Glass Card Container with Blue Gradient & Light Sweep */}
+        <div className="relative z-10 overflow-hidden rounded-[calc(1.5rem-1.5px)] bg-gradient-to-br from-blue-500/10 via-white/85 to-indigo-500/10 p-6 backdrop-blur-2xl transition-all sm:p-9 dark:from-blue-950/40 dark:via-neutral-900/85 dark:to-indigo-950/40">
+          {/* Subtle Ambient Blue Radial Glow Background */}
+          <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl dark:bg-blue-600/15" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-600/15" />
+
+          {/* 빛이 지나가는 표면 광원 효과 (Surface Light Sweep Ray) */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[calc(1.5rem-1.5px)]">
+            <div className="animate-light-sweep absolute -inset-y-16 -left-1/3 w-1/3 transform-gpu bg-gradient-to-r from-transparent via-white/40 to-transparent blur-md dark:via-sky-300/15" />
           </div>
 
-          {/* Live Mode Source Selector */}
-          {activeMode === 'live' && (
-            <div className="flex items-center gap-2">
-              <label htmlFor="source-select" className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                공개 원천:
-              </label>
-              <select
-                id="source-select"
-                value={selectedSourceId}
-                onChange={(e) => onSelectSource(e.target.value)}
-                className="rounded-lg border border-neutral-200 bg-neutral-100 px-2.5 py-1.5 text-xs font-medium text-neutral-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-              >
-                <option value="seoul-weather-temp">Open-Meteo 서울 실시간 기온 (°C)</option>
-                <option value="usd-krw-exchange">Frankfurter USD/KRW 실시간 환율 (KRW)</option>
-              </select>
-            </div>
-          )}
-        </div>
+          {/* Inner Content Layer */}
+          <div className="relative z-10">
+            {/* Card Header: Mode & Source Selector */}
+            <div className="flex flex-col justify-between gap-4 border-b border-blue-100/80 pb-6 sm:flex-row sm:items-center dark:border-neutral-800/80">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-blue-200 bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
+                    {activeMode === 'live' ? '실제 비개인 공개 원천' : 'ALEPH 결정론적 합성 Fixture'}
+                  </span>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                    기준 시간대: {currentReading?.record_timezone || 'Asia/Seoul'}
+                  </span>
+                </div>
+                <h2 className="mt-1.5 text-xl font-black tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">
+                  {currentReading?.source_name || '실시간 정보판 관측소'}
+                </h2>
+              </div>
 
-        {/* Big Value Display & Delta Comparison */}
-        <div className="flex flex-col justify-between gap-6 border-b border-neutral-100 py-8 md:flex-row md:items-end dark:border-neutral-800">
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-xs font-medium tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                현재 관측값 (Normalized Reading)
-              </span>
-              {isStale && (
-                <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:border-amber-700 dark:bg-amber-900/60 dark:text-amber-300">
-                  마지막 정상값 보존 중
+              {/* Live Mode Source Selector */}
+              {activeMode === 'live' && (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="source-select" className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    공개 원천:
+                  </label>
+                  <select
+                    id="source-select"
+                    value={selectedSourceId}
+                    onChange={(e) => onSelectSource(e.target.value)}
+                    className="rounded-lg border border-neutral-200 bg-neutral-100 px-2.5 py-1.5 text-xs font-medium text-neutral-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                  >
+                    <option value="seoul-weather-temp">Open-Meteo 서울 실시간 기온 (°C)</option>
+                    <option value="usd-krw-exchange">Frankfurter USD/KRW 실시간 환율 (KRW)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Big Value Display & Delta Comparison */}
+            <div className="flex flex-col justify-between gap-6 border-b border-blue-100/80 py-8 md:flex-row md:items-end dark:border-neutral-800/80">
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-xs font-medium tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    현재 관측값 (Normalized Reading)
+                  </span>
+                  {isStale && (
+                    <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:border-amber-700 dark:bg-amber-900/60 dark:text-amber-300">
+                      마지막 정상값 보존 중
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-baseline gap-3">
+                  <span className="text-5xl font-black tracking-tight text-neutral-900 tabular-nums sm:text-6xl md:text-7xl dark:text-white">
+                    {currentReading !== null ? (
+                      <NumberFlow
+                        value={animatedValue}
+                        trend={1}
+                        spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                      />
+                    ) : (
+                      '---'
+                    )}
+                  </span>
+                  <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
+                    {currentReading?.unit || ''}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-start gap-2 md:items-end">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                  어제 대비 변화 (Day-over-Day Delta)
                 </span>
-              )}
+                {renderDelta()}
+              </div>
             </div>
 
-            <div className="flex items-baseline gap-3">
-              <span className="text-5xl font-black tracking-tight text-neutral-900 tabular-nums sm:text-6xl md:text-7xl dark:text-white">
-                {currentReading !== null ? (
-                  <NumberFlow
-                    value={animatedValue}
-                    trend={1}
-                    spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-                  />
-                ) : (
-                  '---'
-                )}
-              </span>
-              <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
-                {currentReading?.unit || ''}
-              </span>
-            </div>
-          </div>
+            {/* 6 Essential Metadata Grid (T04-C04 ~ T04-C09) */}
+            <div className="grid grid-cols-1 gap-4 pt-8 text-xs sm:grid-cols-2 lg:grid-cols-3">
+              {/* 1. Value & Unit */}
+              <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
+                <div className="shrink-0 rounded-xl bg-blue-50 p-2 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+                  <Scale className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    값 및 측정 단위 (T04-C04, C05)
+                  </span>
+                  <span className="mt-1 block text-base font-bold text-neutral-900 dark:text-neutral-100">
+                    {currentReading !== null ? (
+                      <NumberFlow
+                        value={animatedValue}
+                        trend={1}
+                        spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                      />
+                    ) : (
+                      '---'
+                    )}{' '}
+                    {currentReading?.unit ?? ''}
+                  </span>
+                </div>
+              </div>
 
-          <div className="flex flex-col items-start gap-2 md:items-end">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-              어제 대비 변화 (Day-over-Day Delta)
-            </span>
-            {renderDelta()}
-          </div>
-        </div>
+              {/* 2. Source Name & URL */}
+              <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
+                <div className="shrink-0 rounded-xl bg-purple-50 p-2 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400">
+                  <ExternalLink className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    출처 및 HTTPS URL (T04-C06)
+                  </span>
+                  {currentReading?.source_url ? (
+                    <a
+                      href={currentReading.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 block truncate text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                      title={currentReading.source_url}
+                    >
+                      {currentReading.source_name}
+                    </a>
+                  ) : (
+                    <span className="mt-1 block text-xs font-semibold text-neutral-400">---</span>
+                  )}
+                </div>
+              </div>
 
-        {/* 6 Essential Metadata Grid (T04-C04 ~ T04-C09) */}
-        <div className="grid grid-cols-1 gap-4 pt-8 text-xs sm:grid-cols-2 lg:grid-cols-3">
-          {/* 1. Value & Unit */}
-          <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-neutral-200/80 bg-neutral-50/60 p-4 shadow-xs dark:border-neutral-800">
-            <div className="shrink-0 rounded-xl bg-blue-50 p-2 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
-              <Scale className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                값 및 측정 단위 (T04-C04, C05)
-              </span>
-              <span className="mt-1 block text-base font-bold text-neutral-900 dark:text-neutral-100">
-                {currentReading !== null ? (
-                  <NumberFlow
-                    value={animatedValue}
-                    trend={1}
-                    spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-                  />
-                ) : (
-                  '---'
-                )}{' '}
-                {currentReading?.unit ?? ''}
-              </span>
-            </div>
-          </div>
+              {/* 3. Source Time (원천 관측 시각) */}
+              <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
+                <div className="shrink-0 rounded-xl bg-amber-50 p-2 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    출처 관측 시각 (T04-C07)
+                  </span>
+                  <span className="mt-1 block text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                    {formatKstDateTime(currentReading?.source_time ?? null)}
+                  </span>
+                </div>
+              </div>
 
-          {/* 2. Source Name & URL */}
-          <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-neutral-200/80 bg-neutral-50/60 p-4 shadow-xs dark:border-neutral-800">
-            <div className="shrink-0 rounded-xl bg-purple-50 p-2 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400">
-              <ExternalLink className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                출처 및 HTTPS URL (T04-C06)
-              </span>
-              {currentReading?.source_url ? (
-                <a
-                  href={currentReading.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 block truncate text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
-                  title={currentReading.source_url}
-                >
-                  {currentReading.source_name}
-                </a>
-              ) : (
-                <span className="mt-1 block text-xs font-semibold text-neutral-400">---</span>
-              )}
-            </div>
-          </div>
+              {/* 4. Fetched At (수집 시각) */}
+              <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
+                <div className="shrink-0 rounded-xl bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
+                  <RefreshCw className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    조회/수집 시각 (T04-C08)
+                  </span>
+                  <span className="mt-1 block text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                    {currentReading ? formatKstDateTime(currentReading.fetched_at) : '---'}
+                  </span>
+                </div>
+              </div>
 
-          {/* 3. Source Time (원천 관측 시각) */}
-          <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-neutral-200/80 bg-neutral-50/60 p-4 shadow-xs dark:border-neutral-800">
-            <div className="shrink-0 rounded-xl bg-amber-50 p-2 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
-              <Clock className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                출처 관측 시각 (T04-C07)
-              </span>
-              <span className="mt-1 block text-xs font-semibold text-neutral-900 dark:text-neutral-100">
-                {formatKstDateTime(currentReading?.source_time ?? null)}
-              </span>
-            </div>
-          </div>
+              {/* 5. Timezone */}
+              <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
+                <div className="shrink-0 rounded-xl bg-teal-50 p-2 text-teal-600 dark:bg-teal-950/60 dark:text-teal-400">
+                  <Globe2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    기준 시간대 (T04-C09)
+                  </span>
+                  <span className="mt-1 block text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                    {currentReading?.record_timezone || 'Asia/Seoul'} (KST, UTC+9)
+                  </span>
+                </div>
+              </div>
 
-          {/* 4. Fetched At (수집 시각) */}
-          <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-neutral-200/80 bg-neutral-50/60 p-4 shadow-xs dark:border-neutral-800">
-            <div className="shrink-0 rounded-xl bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-              <RefreshCw className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                조회/수집 시각 (T04-C08)
-              </span>
-              <span className="mt-1 block text-xs font-semibold text-neutral-900 dark:text-neutral-100">
-                {currentReading ? formatKstDateTime(currentReading.fetched_at) : '---'}
-              </span>
-            </div>
-          </div>
-
-          {/* 5. Timezone */}
-          <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-neutral-200/80 bg-neutral-50/60 p-4 shadow-xs dark:border-neutral-800">
-            <div className="shrink-0 rounded-xl bg-teal-50 p-2 text-teal-600 dark:bg-teal-950/60 dark:text-teal-400">
-              <Globe2 className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                기준 시간대 (T04-C09)
-              </span>
-              <span className="mt-1 block text-xs font-semibold text-neutral-900 dark:text-neutral-100">
-                {currentReading?.record_timezone || 'Asia/Seoul'} (KST, UTC+9)
-              </span>
-            </div>
-          </div>
-
-          {/* 6. Record Date (Derived Asia/Seoul Date) */}
-          <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-neutral-200/80 bg-neutral-50/60 p-4 shadow-xs dark:border-neutral-800">
-            <div className="shrink-0 rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
-              <Calendar className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
-                일별 고유 키 날짜 (record_date)
-              </span>
-              <span className="mt-1 block text-xs font-bold text-neutral-900 dark:text-neutral-100">
-                {currentReading?.record_date || '---'}
-              </span>
+              {/* 6. Record Date (Derived Asia/Seoul Date) */}
+              <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
+                <div className="shrink-0 rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+                  <Calendar className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    일별 고유 키 날짜 (record_date)
+                  </span>
+                  <span className="mt-1 block text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                    {currentReading?.record_date || '---'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
