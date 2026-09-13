@@ -1,4 +1,4 @@
-﻿import type { DailyRecord, NormalizedReading } from '../types/board';
+import type { DailyRecord, NormalizedReading } from '../types/board';
 import { kstDate } from './kst';
 
 export interface LiveSourceDefinition {
@@ -112,49 +112,51 @@ export const AVAILABLE_SOURCES: readonly LiveSourceDefinition[] = [SEOUL_WEATHER
 export function getInitialTwoDayLiveRecords(): DailyRecord[] {
   const day1Reading: NormalizedReading = {
     signal_id: 'seoul-weather-temp',
-    normalized_value: 23.5,
-    unit: '°C',
-    source_name: 'Open-Meteo 서울 실시간 기상관측',
-    source_url:
-      'https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m&timezone=Asia%2FSeoul',
-    source_time: '2026-09-11T14:00:00.000Z',
-    fetched_at: '2026-09-11T14:05:00.000Z',
-    record_timezone: 'Asia/Seoul',
-    record_date: '2026-09-11',
-  };
-
-  const day2Reading: NormalizedReading = {
-    signal_id: 'seoul-weather-temp',
     normalized_value: 25.1,
     unit: '°C',
     source_name: 'Open-Meteo 서울 실시간 기상관측',
     source_url:
       'https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m&timezone=Asia%2FSeoul',
-    source_time: '2026-09-12T01:00:00.000Z',
-    fetched_at: '2026-09-12T01:05:00.000Z',
+    source_time: '2026-09-12T14:00:00.000Z',
+    fetched_at: '2026-09-12T14:05:00.000Z',
     record_timezone: 'Asia/Seoul',
     record_date: '2026-09-12',
   };
 
+  const day2Reading: NormalizedReading = {
+    signal_id: 'seoul-weather-temp',
+    normalized_value: 20.8,
+    unit: '°C',
+    source_name: 'Open-Meteo 서울 실시간 기상관측',
+    source_url:
+      'https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m&timezone=Asia%2FSeoul',
+    source_time: '2026-09-13T11:30:00.000Z',
+    fetched_at: '2026-09-13T11:30:00.000Z',
+    record_timezone: 'Asia/Seoul',
+    record_date: '2026-09-13',
+  };
+
   return [
-    {
-      record_id: 'demo-seoul-weather-temp-2026-09-11',
-      signal_id: 'seoul-weather-temp',
-      record_date: '2026-09-11',
-      normalized_value: 23.5,
-      unit: '°C',
-      first_fetched_at: '2026-09-11T14:05:00.000Z',
-      last_fetched_at: '2026-09-11T14:05:00.000Z',
-      reading: day1Reading,
-    },
     {
       record_id: 'demo-seoul-weather-temp-2026-09-12',
       signal_id: 'seoul-weather-temp',
       record_date: '2026-09-12',
+      first_normalized_value: 25.1,
       normalized_value: 25.1,
       unit: '°C',
-      first_fetched_at: '2026-09-12T01:05:00.000Z',
-      last_fetched_at: '2026-09-12T01:05:00.000Z',
+      first_fetched_at: '2026-09-12T14:05:00.000Z',
+      last_fetched_at: '2026-09-12T14:05:00.000Z',
+      reading: day1Reading,
+    },
+    {
+      record_id: 'demo-seoul-weather-temp-2026-09-13',
+      signal_id: 'seoul-weather-temp',
+      record_date: '2026-09-13',
+      first_normalized_value: 20.8,
+      normalized_value: 20.8,
+      unit: '°C',
+      first_fetched_at: '2026-09-13T11:30:00.000Z',
+      last_fetched_at: '2026-09-13T11:30:00.000Z',
       reading: day2Reading,
     },
   ];

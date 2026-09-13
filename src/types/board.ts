@@ -1,4 +1,4 @@
-﻿export type FreshnessType = 'fresh' | 'stale';
+export type FreshnessType = 'fresh' | 'stale';
 
 export type ErrorCodeType = 'none' | 'timeout' | 'auth' | 'rate_limit' | 'offline' | 'schema_error';
 
@@ -23,7 +23,8 @@ export interface DailyRecord {
   record_id: string;
   signal_id: string;
   record_date: string;
-  normalized_value: number;
+  first_normalized_value?: number; // 최초 수집 시점의 값 (LMS 1차 기록 보존 및 T04-C20 추적)
+  normalized_value: number; // 최종 갱신값
   unit: string;
   first_fetched_at: string;
   last_fetched_at: string;

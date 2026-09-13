@@ -233,20 +233,20 @@ export const MainBoard: React.FC<MainBoardProps> = ({
       {/* Main Glass Card Wrapper with Animated Border Glow */}
       <div className="relative overflow-hidden rounded-3xl p-[1.5px] shadow-2xl shadow-blue-500/10 transition-all dark:shadow-blue-950/30">
         {/* Animated Border Light Beam (Rotating Conic Gradient) */}
-        <div className="animate-border-beam pointer-events-none absolute top-1/2 left-1/2 -z-0 aspect-square w-[350%] transform-gpu bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_60deg,rgba(59,130,246,0.15)_80deg,rgba(96,165,250,0.85)_98deg,#ffffff_105deg,rgba(96,165,250,0.85)_112deg,rgba(59,130,246,0.15)_130deg,transparent_150deg,transparent_360deg)] opacity-90 dark:opacity-100" />
+        <div className="animate-border-beam pointer-events-none absolute top-1/2 left-1/2 z-0 aspect-square w-[350%] transform-gpu bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_60deg,rgba(59,130,246,0.15)_80deg,rgba(96,165,250,0.85)_98deg,#ffffff_105deg,rgba(96,165,250,0.85)_112deg,rgba(59,130,246,0.15)_130deg,transparent_150deg,transparent_360deg)] opacity-90 dark:opacity-100" />
 
         {/* Soft Glowing Bloom behind border for radiant light emission */}
-        <div className="animate-border-beam pointer-events-none absolute top-1/2 left-1/2 -z-0 aspect-square w-[350%] transform-gpu bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_75deg,rgba(59,130,246,0.4)_95deg,rgba(147,197,253,0.9)_105deg,rgba(59,130,246,0.4)_115deg,transparent_135deg,transparent_360deg)] opacity-70 blur-xs" />
+        <div className="animate-border-beam pointer-events-none absolute top-1/2 left-1/2 z-0 aspect-square w-[350%] transform-gpu bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_75deg,rgba(59,130,246,0.4)_95deg,rgba(147,197,253,0.9)_105deg,rgba(59,130,246,0.4)_115deg,transparent_135deg,transparent_360deg)] opacity-70 blur-xs" />
 
         {/* Static Subtle Border Underlay so border is always visible */}
         <div className="pointer-events-none absolute inset-0 z-0 rounded-3xl border border-blue-200/60 dark:border-blue-500/25" />
 
         {/* Main Inner Glass Card Container with Blue Gradient & Light Sweep */}
-        <div className="relative z-10 overflow-hidden rounded-[calc(1.5rem-1.5px)] bg-gradient-to-br from-blue-500/10 via-white/85 to-indigo-500/10 p-6 backdrop-blur-2xl transition-all sm:p-9 dark:from-blue-950/40 dark:via-neutral-900/85 dark:to-indigo-950/40">
+        <div className="relative z-10 overflow-hidden rounded-[calc(1.5rem-1.5px)] bg-linear-to-br from-blue-500/10 via-white/85 to-indigo-500/10 p-6 backdrop-blur-2xl transition-all sm:p-9 dark:from-blue-950/40 dark:via-neutral-900/85 dark:to-indigo-950/40">
           {/* Top Edge Real-time Loading Stream Progress Bar */}
           {isRefreshing && (
             <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-1 overflow-hidden bg-blue-100/60 dark:bg-blue-950/60">
-              <div className="animate-loading-progress h-full w-2/5 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 shadow-sm" />
+              <div className="animate-loading-progress h-full w-2/5 rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 shadow-sm" />
             </div>
           )}
 
@@ -256,7 +256,7 @@ export const MainBoard: React.FC<MainBoardProps> = ({
 
           {/* 빛이 지나가는 표면 광원 효과 (Surface Light Sweep Ray) */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[calc(1.5rem-1.5px)]">
-            <div className="animate-light-sweep absolute -inset-y-16 -left-1/3 w-1/3 transform-gpu bg-gradient-to-r from-transparent via-white/40 to-transparent blur-md dark:via-sky-300/15" />
+            <div className="animate-light-sweep absolute -inset-y-16 -left-1/3 w-1/3 transform-gpu bg-linear-to-r from-transparent via-white/40 to-transparent blur-md dark:via-sky-300/15" />
           </div>
 
           {/* Inner Content Layer */}
@@ -306,7 +306,7 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                   type="button"
                   onClick={activeMode === 'live' ? onRefreshLive : onRetry}
                   disabled={isRefreshing}
-                  className="hover-lift active-press inline-flex min-w-[136px] items-center justify-center gap-1.5 rounded-xl border border-blue-200/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-xs backdrop-blur-md transition-all hover:border-blue-300 hover:bg-blue-50/80 disabled:opacity-50 dark:border-blue-800/80 dark:bg-neutral-800/85 dark:text-blue-300 dark:hover:bg-neutral-800"
+                  className="hover-lift active-press inline-flex min-w-34 items-center justify-center gap-1.5 rounded-xl border border-blue-200/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-xs backdrop-blur-md transition-all hover:border-blue-300 hover:bg-blue-50/80 disabled:opacity-50 dark:border-blue-800/80 dark:bg-neutral-800/85 dark:text-blue-300 dark:hover:bg-neutral-800"
                   title="기온 실시간 다시 불러오기 (단축키: R)"
                 >
                   <RefreshCw
@@ -346,7 +346,7 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                 }}
               >
                 {/* Status Badges Row (최소 높이 고정으로 수치 밀림 방지) */}
-                <div className="mb-2.5 flex min-h-[30px] flex-wrap items-center gap-2">
+                <div className="mb-2.5 flex min-h-7.5 flex-wrap items-center gap-2">
                   <span className="text-xs font-medium tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                     현재 관측값 (Normalized Reading)
                   </span>

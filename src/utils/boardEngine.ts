@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   ComparisonResult,
   DailyRecord,
   ErrorCodeType,
@@ -149,6 +149,9 @@ export function applySuccessfulReading(
     record_id: existing ? existing.record_id : recordIdFor(reading),
     signal_id: reading.signal_id,
     record_date: reading.record_date,
+    first_normalized_value: existing
+      ? (existing.first_normalized_value ?? existing.normalized_value)
+      : reading.normalized_value,
     normalized_value: reading.normalized_value,
     unit: reading.unit,
     first_fetched_at: existing ? existing.first_fetched_at : reading.fetched_at,

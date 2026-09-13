@@ -125,6 +125,9 @@ export const App: React.FC = () => {
           record_id: existing ? existing.record_id : recordIdFor(reading),
           signal_id: reading.signal_id,
           record_date: reading.record_date,
+          first_normalized_value: existing
+            ? (existing.first_normalized_value ?? existing.normalized_value)
+            : reading.normalized_value,
           normalized_value: reading.normalized_value,
           unit: reading.unit,
           first_fetched_at: existing ? existing.first_fetched_at : reading.fetched_at,
@@ -263,6 +266,7 @@ export const App: React.FC = () => {
         {/* Daily Readings Table (Card 4) */}
         <DailyHistoryTable
           records={activeMode === 'live' ? liveRecords : evalState.daily_readings}
+          activeMode={activeMode}
           title={
             activeMode === 'live'
               ? '실제 공개 원천 일별 기록 보존 저장소 (Live Store)'
