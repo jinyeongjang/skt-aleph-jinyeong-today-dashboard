@@ -19,7 +19,7 @@ import type {
 } from './types/board';
 import { comparisonFor, recordIdFor, resetEvaluationState, runFixture } from './utils/boardEngine';
 import { FIXTURE_RECOVER_D2 } from './utils/fixturesData';
-import { AVAILABLE_SOURCES, SEOUL_WEATHER_SOURCE, USD_KRW_EXCHANGE_SOURCE } from './utils/liveSources';
+import { AVAILABLE_SOURCES, SEOUL_WEATHER_SOURCE } from './utils/liveSources';
 import {
   loadStoredEvalState,
   loadStoredLiveRecords,
@@ -103,11 +103,13 @@ export const App: React.FC = () => {
 
   // 실제 공개 원천 실시간 조회 (Live Fetch)
   const handleRefreshLive = async () => {
+    if (isRefreshing) return;
     setIsRefreshing(true);
     const sourceDef = AVAILABLE_SOURCES.find((s) => s.id === selectedSourceId) || SEOUL_WEATHER_SOURCE;
+    const minInteractiveDelay = new Promise((resolve) => setTimeout(resolve, 650));
 
     try {
-      const { reading, rawJson } = await sourceDef.fetchAndNormalize();
+      const [{ reading, rawJson }] = await Promise.all([sourceDef.fetchAndNormalize(), minInteractiveDelay]);
       setLiveRawJson(rawJson);
       saveStoredRawJson(rawJson);
 
@@ -142,10 +144,10 @@ export const App: React.FC = () => {
 
       setLiveCurrentReading(reading);
       setLiveStatus({ freshness: 'fresh', error_code: 'none' });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.warn('Live fetch 실패, 마지막 정상값을 유지하며 stale로 전환합니다:', err);
       // 어떤 실패에도 마지막 정상값은 유지하고 stale 표시!
-      const errorMsg = String(err?.message || '');
+      const errorMsg = err instanceof Error ? err.message : String(err || '');
       const errorCode = errorMsg.includes('Failed to fetch')
         ? 'offline'
         : errorMsg.includes('401') || errorMsg.includes('403')
@@ -161,30 +163,23 @@ export const App: React.FC = () => {
   };
 
   // Live 모드 출처 변경
-  const handleSelectSource = (sourceId: string) => {
+  const handleSelectSource = async (sourceId: string) => {
     setSelectedSourceId(sourceId);
-    if (sourceId === 'usd-krw-exchange') {
-      USD_KRW_EXCHANGE_SOURCE.fetchAndNormalize()
-        .then(({ reading, rawJson }) => {
-          setLiveRawJson(rawJson);
-          saveStoredRawJson(rawJson);
-          setLiveCurrentReading(reading);
-          setLiveStatus({ freshness: 'fresh', error_code: 'none' });
-        })
-        .catch((err) => {
-          console.warn('환율 조회 실패:', err);
-        });
-    } else {
-      SEOUL_WEATHER_SOURCE.fetchAndNormalize()
-        .then(({ reading, rawJson }) => {
-          setLiveRawJson(rawJson);
-          saveStoredRawJson(rawJson);
-          setLiveCurrentReading(reading);
-          setLiveStatus({ freshness: 'fresh', error_code: 'none' });
-        })
-        .catch((err) => {
-          console.warn('기온 조회 실패:', err);
-        });
+    setIsRefreshing(true);
+    const sourceDef = AVAILABLE_SOURCES.find((s) => s.id === sourceId) || SEOUL_WEATHER_SOURCE;
+    const minInteractiveDelay = new Promise((resolve) => setTimeout(resolve, 650));
+
+    try {
+      const [{ reading, rawJson }] = await Promise.all([sourceDef.fetchAndNormalize(), minInteractiveDelay]);
+      setLiveRawJson(rawJson);
+      saveStoredRawJson(rawJson);
+      setLiveCurrentReading(reading);
+      setLiveStatus({ freshness: 'fresh', error_code: 'none' });
+    } catch (err: unknown) {
+      console.warn('원천 조회 실패:', err);
+      setLiveStatus({ freshness: 'stale', error_code: 'offline' });
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -248,6 +243,7 @@ export const App: React.FC = () => {
           comparison={activeMode === 'live' ? liveComparison : evalState.last_comparison}
           lastDelta={activeMode === 'live' ? liveComparison.magnitude : evalState.last_delta}
           onRetry={handleRetry}
+          onRefreshLive={handleRefreshLive}
           isRefreshing={isRefreshing}
           activeMode={activeMode}
           selectedSourceId={selectedSourceId}

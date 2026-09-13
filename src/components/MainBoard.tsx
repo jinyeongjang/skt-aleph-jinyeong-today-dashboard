@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AlertCircle,
   AlertTriangle,
   ArrowDownRight,
   ArrowUpRight,
   Calendar,
+  CheckCircle2,
   Clock,
   ExternalLink,
   Globe2,
@@ -13,6 +14,7 @@ import {
   RotateCcw,
   Scale,
   ShieldAlert,
+  Thermometer,
   WifiOff,
 } from 'lucide-react';
 import type { ComparisonResult, NormalizedReading, ReadingStatus } from '../types/board';
@@ -25,6 +27,7 @@ interface MainBoardProps {
   comparison: ComparisonResult;
   lastDelta: number | null;
   onRetry: () => void;
+  onRefreshLive?: () => void;
   isRefreshing: boolean;
   activeMode: 'live' | 'synthetic';
   selectedSourceId: string;
@@ -37,6 +40,7 @@ export const MainBoard: React.FC<MainBoardProps> = ({
   comparison,
   lastDelta,
   onRetry,
+  onRefreshLive,
   isRefreshing,
   activeMode,
   selectedSourceId,
@@ -51,6 +55,38 @@ export const MainBoard: React.FC<MainBoardProps> = ({
   // 페이지 진입 즉시 0에서 목표값으로 NumberFlow 애니메이션이 발동하도록 상태 관리
   const [animatedValue, setAnimatedValue] = useState<number>(0);
   const [animatedDelta, setAnimatedDelta] = useState<number>(0);
+
+  // 로딩 완료 후 방금 갱신됨 피드백을 표시하기 위한 상태
+  const [justUpdated, setJustUpdated] = useState(false);
+  const prevRefreshingRef = useRef(isRefreshing);
+
+  useEffect(() => {
+    if (prevRefreshingRef.current && !isRefreshing && status?.freshness === 'fresh') {
+      setJustUpdated(true);
+      const timer = setTimeout(() => setJustUpdated(false), 2600);
+      return () => clearTimeout(timer);
+    }
+    prevRefreshingRef.current = isRefreshing;
+  }, [isRefreshing, status?.freshness]);
+
+  // 키보드 단축키 [R]로 기온 실시간 새로고침 지원
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+      if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        if (activeMode === 'live' && onRefreshLive && !isRefreshing) {
+          onRefreshLive();
+        } else if (activeMode === 'synthetic' && !isRefreshing) {
+          onRetry();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeMode, onRefreshLive, onRetry, isRefreshing]);
 
   useEffect(() => {
     // 마운트 및 값 갱신 시 다음 애니메이션 프레임에서 목표값으로 부드럽게 전이
@@ -207,6 +243,13 @@ export const MainBoard: React.FC<MainBoardProps> = ({
 
         {/* Main Inner Glass Card Container with Blue Gradient & Light Sweep */}
         <div className="relative z-10 overflow-hidden rounded-[calc(1.5rem-1.5px)] bg-gradient-to-br from-blue-500/10 via-white/85 to-indigo-500/10 p-6 backdrop-blur-2xl transition-all sm:p-9 dark:from-blue-950/40 dark:via-neutral-900/85 dark:to-indigo-950/40">
+          {/* Top Edge Real-time Loading Stream Progress Bar */}
+          {isRefreshing && (
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-1 overflow-hidden bg-blue-100/60 dark:bg-blue-950/60">
+              <div className="animate-loading-progress h-full w-2/5 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 shadow-sm" />
+            </div>
+          )}
+
           {/* Subtle Ambient Blue Radial Glow Background */}
           <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl dark:bg-blue-600/15" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-600/15" />
@@ -218,7 +261,7 @@ export const MainBoard: React.FC<MainBoardProps> = ({
 
           {/* Inner Content Layer */}
           <div className="relative z-10">
-            {/* Card Header: Mode & Source Selector */}
+            {/* Card Header: Mode & Source Selector & Quick Interactive Refresh Button */}
             <div className="flex flex-col justify-between gap-4 border-b border-blue-100/80 pb-6 sm:flex-row sm:items-center dark:border-neutral-800/80">
               <div>
                 <div className="flex items-center gap-2">
@@ -234,54 +277,156 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                 </h2>
               </div>
 
-              {/* Live Mode Source Selector */}
-              {activeMode === 'live' && (
-                <div className="flex items-center gap-2">
-                  <label htmlFor="source-select" className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    공개 원천:
-                  </label>
-                  <select
-                    id="source-select"
-                    value={selectedSourceId}
-                    onChange={(e) => onSelectSource(e.target.value)}
-                    className="rounded-lg border border-neutral-200 bg-neutral-100 px-2.5 py-1.5 text-xs font-medium text-neutral-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-                  >
-                    <option value="seoul-weather-temp">Open-Meteo 서울 실시간 기온 (°C)</option>
-                    <option value="usd-krw-exchange">Frankfurter USD/KRW 실시간 환율 (KRW)</option>
-                  </select>
-                </div>
-              )}
+              {/* Header Right: Source Selector & Interactive Fetch Button */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* Live Mode Source Selector */}
+                {activeMode === 'live' && (
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="source-select"
+                      className="text-xs font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      공개 원천:
+                    </label>
+                    <select
+                      id="source-select"
+                      value={selectedSourceId}
+                      onChange={(e) => onSelectSource(e.target.value)}
+                      disabled={isRefreshing}
+                      className="rounded-lg border border-neutral-200 bg-neutral-100 px-2.5 py-1.5 text-xs font-medium text-neutral-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                    >
+                      <option value="seoul-weather-temp">Open-Meteo 서울 실시간 기온 (°C)</option>
+                      <option value="usd-krw-exchange">Frankfurter USD/KRW 실시간 환율 (KRW)</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* Quick Refresh Interactive Action Button */}
+                <button
+                  type="button"
+                  onClick={activeMode === 'live' ? onRefreshLive : onRetry}
+                  disabled={isRefreshing}
+                  className="hover-lift active-press inline-flex items-center gap-1.5 rounded-xl border border-blue-200/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-xs backdrop-blur-md transition-all hover:border-blue-300 hover:bg-blue-50/80 disabled:opacity-50 dark:border-blue-800/80 dark:bg-neutral-800/85 dark:text-blue-300 dark:hover:bg-neutral-800"
+                  title="기온 실시간 다시 불러오기 (단축키: R)"
+                >
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-blue-600 dark:text-blue-400' : ''}`}
+                  />
+                  <span>{isRefreshing ? '기온 수신 중...' : '기온 불러오기'}</span>
+                  <kbd className="hidden rounded bg-neutral-200/70 px-1 py-0.5 font-mono text-[10px] text-neutral-600 sm:inline-block dark:bg-neutral-700/70 dark:text-neutral-300">
+                    R
+                  </kbd>
+                </button>
+              </div>
             </div>
 
             {/* Big Value Display & Delta Comparison */}
             <div className="flex flex-col justify-between gap-6 border-b border-blue-100/80 py-8 md:flex-row md:items-end dark:border-neutral-800/80">
-              <div>
-                <div className="mb-2 flex items-center gap-2">
+              <div
+                onClick={activeMode === 'live' && onRefreshLive && !isRefreshing ? onRefreshLive : undefined}
+                className={`group relative -m-2.5 rounded-2xl p-2.5 transition-all ${
+                  activeMode === 'live' && !isRefreshing
+                    ? 'cursor-pointer hover:bg-white/40 dark:hover:bg-neutral-800/40'
+                    : ''
+                }`}
+                title={activeMode === 'live' ? '클릭하여 실시간 기온 갱신 (단축키: R)' : undefined}
+                role={activeMode === 'live' ? 'button' : undefined}
+                tabIndex={activeMode === 'live' ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    if (activeMode === 'live' && onRefreshLive && !isRefreshing) onRefreshLive();
+                  }
+                }}
+              >
+                {/* Status Badges Row (Normalized Reading label + Loading/Success/Stale indicators) */}
+                <div className="mb-2.5 flex flex-wrap items-center gap-2">
                   <span className="text-xs font-medium tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                     현재 관측값 (Normalized Reading)
                   </span>
-                  {isStale && (
+
+                  {isRefreshing && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-300/80 bg-blue-50/80 px-2.5 py-0.5 text-xs font-semibold text-blue-700 backdrop-blur-md dark:border-blue-700/80 dark:bg-blue-950/60 dark:text-blue-300">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
+                      </span>
+                      <span>실시간 신호 수신 중...</span>
+                    </span>
+                  )}
+
+                  {!isRefreshing && justUpdated && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/80 bg-emerald-50/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 shadow-xs backdrop-blur-md dark:border-emerald-700/80 dark:bg-emerald-950/60 dark:text-emerald-300">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>최신 관측치 동기화 완료!</span>
+                    </span>
+                  )}
+
+                  {isStale && !isRefreshing && (
                     <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:border-amber-700 dark:bg-amber-900/60 dark:text-amber-300">
                       마지막 정상값 보존 중
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-baseline gap-3">
-                  <span className="text-5xl font-black tracking-tight text-neutral-900 tabular-nums sm:text-6xl md:text-7xl dark:text-white">
-                    {currentReading !== null ? (
-                      <NumberFlow
-                        value={animatedValue}
-                        trend={1}
-                        spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                {/* Big Temperature / Reading Number Container with Icon and Pulse Ring */}
+                <div className="relative flex items-center gap-4">
+                  {/* Interactive Thermometer / Measurement Sensor Icon Container */}
+                  <div
+                    className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/80 bg-white/70 shadow-sm backdrop-blur-md transition-all duration-300 sm:h-16 sm:w-16 dark:border-white/10 dark:bg-neutral-800/70 ${
+                      isRefreshing
+                        ? 'border-blue-300 bg-blue-50/90 text-blue-600 shadow-blue-400/30 dark:border-blue-600 dark:bg-blue-950/60 dark:text-blue-300'
+                        : 'text-neutral-700 dark:text-neutral-200'
+                    }`}
+                  >
+                    {isRefreshing && (
+                      <span className="animate-radar-pulse pointer-events-none absolute inset-0 rounded-2xl bg-blue-400/30 dark:bg-blue-500/20" />
+                    )}
+                    {currentReading?.unit === '°C' ? (
+                      <Thermometer
+                        className={`h-7 w-7 transition-transform sm:h-8 sm:w-8 ${
+                          isRefreshing ? 'animate-thermometer-bob text-blue-600 dark:text-blue-400' : ''
+                        }`}
                       />
                     ) : (
-                      '---'
+                      <Scale
+                        className={`h-7 w-7 transition-transform sm:h-8 sm:w-8 ${
+                          isRefreshing ? 'animate-spin text-blue-600 dark:text-blue-400' : ''
+                        }`}
+                      />
                     )}
-                  </span>
-                  <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
-                    {currentReading?.unit || ''}
-                  </span>
+                  </div>
+
+                  {/* Value and Unit Display */}
+                  <div className="flex items-baseline gap-3">
+                    <span
+                      className={`text-5xl font-black tracking-tight tabular-nums transition-all duration-300 sm:text-6xl md:text-7xl ${
+                        isRefreshing
+                          ? 'scale-[0.99] text-blue-600/75 blur-[0.3px] dark:text-blue-400/80'
+                          : 'text-neutral-900 dark:text-white'
+                      }`}
+                    >
+                      {currentReading !== null ? (
+                        <NumberFlow
+                          value={animatedValue}
+                          trend={1}
+                          spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                        />
+                      ) : (
+                        '---'
+                      )}
+                    </span>
+                    <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
+                      {currentReading?.unit || ''}
+                    </span>
+
+                    {/* Interactive Click Hint on Hover */}
+                    {activeMode === 'live' && (
+                      <span className="hidden text-xs text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 sm:inline-block dark:text-neutral-500">
+                        (클릭하여 새로고침)
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -297,7 +442,13 @@ export const MainBoard: React.FC<MainBoardProps> = ({
             <div className="grid grid-cols-1 gap-4 pt-8 text-xs sm:grid-cols-2 lg:grid-cols-3">
               {/* 1. Value & Unit */}
               <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
-                <div className="shrink-0 rounded-xl bg-blue-50 p-2 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+                <div
+                  className={`shrink-0 rounded-xl p-2 transition-all ${
+                    isRefreshing
+                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/60 dark:text-blue-400'
+                      : 'bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400'
+                  }`}
+                >
                   <Scale className="h-4 w-4" />
                 </div>
                 <div>
@@ -361,8 +512,14 @@ export const MainBoard: React.FC<MainBoardProps> = ({
 
               {/* 4. Fetched At (수집 시각) */}
               <div className="hover-lift dark:bg-neutral-850/60 flex items-start gap-3.5 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-xs backdrop-blur-md dark:border-white/10">
-                <div className="shrink-0 rounded-xl bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-                  <RefreshCw className="h-4 w-4" />
+                <div
+                  className={`shrink-0 rounded-xl p-2 transition-all ${
+                    isRefreshing
+                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/60 dark:text-blue-400'
+                      : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
+                  }`}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </div>
                 <div>
                   <span className="block text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">

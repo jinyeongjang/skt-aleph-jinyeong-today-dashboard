@@ -184,3 +184,55 @@ html.dark .glass-glow {
 .animate-border-beam {
   animation: border-beam 7s linear infinite;
 }
+
+/* 기온 동기화 실시간 스트림 프로그레스 바 애니메이션 */
+@keyframes loading-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(30%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-loading-progress {
+  animation: loading-progress 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* 기온 관측 레이더 펄스 웨이브 애니메이션 */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(0.92);
+    opacity: 0.7;
+  }
+}
+
+.animate-radar-pulse {
+  animation: radar-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* 온도계 수은주 진동 애니메이션 */
+@keyframes thermometer-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-thermometer-bob {
+  animation: thermometer-bob 1s ease-in-out infinite;
+}
