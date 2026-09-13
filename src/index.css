@@ -222,35 +222,33 @@ html.dark .glass-glow {
   animation: radar-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-/* 온도계 수은주 진동 애니메이션 */
-@keyframes thermometer-bob {
+/* 온도계 은은한 펄스 애니메이션 (화면 흔들림 0px) */
+@keyframes thermometer-pulse {
   0%,
   100% {
-    transform: translateY(0);
+    opacity: 1;
   }
   50% {
-    transform: translateY(-3px);
+    opacity: 0.65;
   }
 }
 
 .animate-thermometer-bob {
-  animation: thermometer-bob 1s ease-in-out infinite;
+  animation: thermometer-pulse 1.2s ease-in-out infinite;
 }
 
-/* 블러가 풀리며 텍스트가 선명하게 나타나는 인터랙티브 애니메이션 */
+/* 블러가 풀리며 텍스트가 선명하게 나타나는 인터랙티브 애니메이션 (위치 이동 없는 완전 고정) */
 @keyframes blur-in {
   0% {
     filter: blur(10px);
     opacity: 0;
-    transform: translateY(4px) scale(0.95);
   }
   100% {
     filter: blur(0px);
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
 .animate-blur-in {
-  animation: blur-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: blur-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

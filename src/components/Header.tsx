@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onRefreshLive}
               disabled={isRefreshing}
-              className="hover-lift active-press inline-flex items-center gap-1.5 rounded-xl bg-neutral-900/90 px-3 py-1.5 text-xs font-semibold text-white shadow-xs backdrop-blur-sm transition-all hover:bg-neutral-800 disabled:opacity-50 dark:bg-neutral-100/90 dark:text-neutral-900 dark:hover:bg-neutral-200"
+              className="hover-lift active-press inline-flex min-w-[34px] items-center justify-center gap-1.5 rounded-xl bg-neutral-900/90 px-3 py-1.5 text-xs font-semibold text-white shadow-xs backdrop-blur-sm transition-all hover:bg-neutral-800 disabled:opacity-50 md:min-w-[98px] dark:bg-neutral-100/90 dark:text-neutral-900 dark:hover:bg-neutral-200"
               title="실제 공개 원천 동적 조회"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />

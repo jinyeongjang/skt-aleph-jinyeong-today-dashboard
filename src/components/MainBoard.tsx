@@ -301,12 +301,12 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                   </div>
                 )}
 
-                {/* Quick Refresh Interactive Action Button */}
+                {/* Quick Refresh Interactive Action Button (너비 고정으로 레이아웃 밀림 방지) */}
                 <button
                   type="button"
                   onClick={activeMode === 'live' ? onRefreshLive : onRetry}
                   disabled={isRefreshing}
-                  className="hover-lift active-press inline-flex items-center gap-1.5 rounded-xl border border-blue-200/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-xs backdrop-blur-md transition-all hover:border-blue-300 hover:bg-blue-50/80 disabled:opacity-50 dark:border-blue-800/80 dark:bg-neutral-800/85 dark:text-blue-300 dark:hover:bg-neutral-800"
+                  className="hover-lift active-press inline-flex min-w-[136px] items-center justify-center gap-1.5 rounded-xl border border-blue-200/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-xs backdrop-blur-md transition-all hover:border-blue-300 hover:bg-blue-50/80 disabled:opacity-50 dark:border-blue-800/80 dark:bg-neutral-800/85 dark:text-blue-300 dark:hover:bg-neutral-800"
                   title="기온 실시간 다시 불러오기 (단축키: R)"
                 >
                   <RefreshCw
@@ -345,14 +345,14 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                   }
                 }}
               >
-                {/* Status Badges Row (Normalized Reading label + Loading/Success/Stale indicators) */}
-                <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                {/* Status Badges Row (최소 높이 고정으로 수치 밀림 방지) */}
+                <div className="mb-2.5 flex min-h-[30px] flex-wrap items-center gap-2">
                   <span className="text-xs font-medium tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                     현재 관측값 (Normalized Reading)
                   </span>
 
                   {isRefreshing && (
-                    <span className="animate-blur-in inline-flex items-center gap-1.5 rounded-full border border-blue-300/80 bg-blue-50/80 px-2.5 py-0.5 text-xs font-semibold text-blue-700 backdrop-blur-md dark:border-blue-700/80 dark:bg-blue-950/60 dark:text-blue-300">
+                    <span className="animate-blur-in inline-flex items-center gap-2 rounded-full border border-blue-300/80 bg-blue-50/80 px-3 py-1 text-xs font-bold text-blue-700 backdrop-blur-md dark:border-blue-700/80 dark:bg-blue-950/60 dark:text-blue-300">
                       <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
                         <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
@@ -392,7 +392,7 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                     )}
                     {currentReading?.unit === '°C' ? (
                       <Thermometer
-                        className={`h-7 w-7 transition-transform sm:h-8 sm:w-8 ${
+                        className={`h-7 w-7 transition-opacity sm:h-8 sm:w-8 ${
                           isRefreshing ? 'animate-thermometer-bob text-blue-600 dark:text-blue-400' : ''
                         }`}
                       />
@@ -405,14 +405,12 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                     )}
                   </div>
 
-                  {/* Value and Unit Display with Blur Loading Transition */}
-                  <div className="relative flex items-baseline">
-                    {/* 숫자와 단위 표시: 로딩 중일 때 blur 및 반투명 처리 */}
+                  {/* Value and Unit Display with Blur Loading Transition (화면 흔들림 0px) */}
+                  <div className="relative flex items-center">
+                    {/* 숫자와 단위 표시: 위치 이동이나 스케일 없이 오직 blur와 opacity만 처리 */}
                     <div
-                      className={`flex items-baseline gap-3 transition-all duration-500 ${
-                        isRefreshing
-                          ? 'pointer-events-none scale-[0.98] opacity-35 blur-[5px] select-none'
-                          : 'blur-0 scale-100 opacity-100'
+                      className={`flex items-baseline gap-3 transition-all duration-300 ${
+                        isRefreshing ? 'pointer-events-none opacity-25 blur-[5px] select-none' : 'blur-0 opacity-100'
                       }`}
                     >
                       <span className="text-5xl font-black tracking-tight text-neutral-900 tabular-nums sm:text-6xl md:text-7xl dark:text-white">
@@ -431,19 +429,20 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                       </span>
                     </div>
 
-                    {/* 기온을 불러오는 중... Blur-in 글래스모피즘 인터랙티브 오버레이 */}
+                    {/* 기온을 불러오는 중... Blur-in 글래스모피즘 와이드 인터랙티브 오버레이 (화면 밀림 0) */}
                     {isRefreshing && (
-                      <div className="animate-blur-in pointer-events-none absolute inset-0 flex items-center">
-                        <div className="flex items-center gap-2.5 rounded-2xl border border-blue-200/90 bg-white/85 px-4 py-2 shadow-lg shadow-blue-500/10 backdrop-blur-xl dark:border-blue-700/80 dark:bg-neutral-900/85 dark:shadow-blue-950/30">
-                          <span className="relative flex h-2.5 w-2.5 shrink-0">
+                      <div className="animate-blur-in pointer-events-none absolute left-0 z-20 flex items-center">
+                        <div className="flex w-max items-center gap-3.5 rounded-2xl border border-blue-300/90 bg-white/95 px-6 py-3 shadow-xl shadow-blue-500/20 backdrop-blur-2xl sm:gap-4 sm:rounded-3xl sm:px-8 sm:py-3.5 dark:border-blue-600/80 dark:bg-neutral-900/95 dark:shadow-blue-950/40">
+                          <span className="relative flex h-3.5 w-3.5 shrink-0">
                             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
-                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-blue-500"></span>
                           </span>
-                          <span className="animate-pulse text-sm font-extrabold tracking-tight text-blue-700 sm:text-base dark:text-blue-300">
+                          <span className="text-base font-black tracking-tight text-blue-700 sm:text-lg dark:text-blue-300">
                             {selectedSourceId === 'usd-krw-exchange'
                               ? '환율을 불러오는 중...'
                               : '기온을 불러오는 중...'}
                           </span>
+                          <RefreshCw className="h-4 w-4 shrink-0 animate-spin text-blue-500 dark:text-blue-400" />
                         </div>
                       </div>
                     )}
@@ -458,7 +457,8 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-col items-start gap-2 md:items-end">
+              {/* 우측 델타 영역: shrink-0 추가로 좌측 오버레이에 의해 절대 밀리지 않음 */}
+              <div className="flex shrink-0 flex-col items-start gap-2 md:items-end">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                   어제 대비 변화 (Day-over-Day Delta)
                 </span>
