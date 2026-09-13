@@ -106,7 +106,7 @@ export const App: React.FC = () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
     const sourceDef = AVAILABLE_SOURCES.find((s) => s.id === selectedSourceId) || SEOUL_WEATHER_SOURCE;
-    const minInteractiveDelay = new Promise((resolve) => setTimeout(resolve, 650));
+    const minInteractiveDelay = new Promise((resolve) => setTimeout(resolve, 800));
 
     try {
       const [{ reading, rawJson }] = await Promise.all([sourceDef.fetchAndNormalize(), minInteractiveDelay]);
@@ -167,7 +167,7 @@ export const App: React.FC = () => {
     setSelectedSourceId(sourceId);
     setIsRefreshing(true);
     const sourceDef = AVAILABLE_SOURCES.find((s) => s.id === sourceId) || SEOUL_WEATHER_SOURCE;
-    const minInteractiveDelay = new Promise((resolve) => setTimeout(resolve, 650));
+    const minInteractiveDelay = new Promise((resolve) => setTimeout(resolve, 800));
 
     try {
       const [{ reading, rawJson }] = await Promise.all([sourceDef.fetchAndNormalize(), minInteractiveDelay]);

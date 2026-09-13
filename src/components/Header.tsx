@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="실제 공개 원천 동적 조회"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span className="hidden md:inline">실시간 조회</span>
+              <span className="hidden md:inline">{isRefreshing ? '불러오는 중...' : '실시간 조회'}</span>
             </button>
           )}
 

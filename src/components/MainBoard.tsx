@@ -312,7 +312,13 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                   <RefreshCw
                     className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-blue-600 dark:text-blue-400' : ''}`}
                   />
-                  <span>{isRefreshing ? '기온 수신 중...' : '기온 불러오기'}</span>
+                  <span>
+                    {isRefreshing
+                      ? selectedSourceId === 'usd-krw-exchange'
+                        ? '환율 불러오는 중...'
+                        : '기온 불러오는 중...'
+                      : '기온 불러오기'}
+                  </span>
                   <kbd className="hidden rounded bg-neutral-200/70 px-1 py-0.5 font-mono text-[10px] text-neutral-600 sm:inline-block dark:bg-neutral-700/70 dark:text-neutral-300">
                     R
                   </kbd>
@@ -346,12 +352,14 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                   </span>
 
                   {isRefreshing && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-300/80 bg-blue-50/80 px-2.5 py-0.5 text-xs font-semibold text-blue-700 backdrop-blur-md dark:border-blue-700/80 dark:bg-blue-950/60 dark:text-blue-300">
+                    <span className="animate-blur-in inline-flex items-center gap-1.5 rounded-full border border-blue-300/80 bg-blue-50/80 px-2.5 py-0.5 text-xs font-semibold text-blue-700 backdrop-blur-md dark:border-blue-700/80 dark:bg-blue-950/60 dark:text-blue-300">
                       <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
                         <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
                       </span>
-                      <span>실시간 신호 수신 중...</span>
+                      <span>
+                        {selectedSourceId === 'usd-krw-exchange' ? '환율을 불러오는 중...' : '기온을 불러오는 중...'}
+                      </span>
                     </span>
                   )}
 
@@ -397,32 +405,52 @@ export const MainBoard: React.FC<MainBoardProps> = ({
                     )}
                   </div>
 
-                  {/* Value and Unit Display */}
-                  <div className="flex items-baseline gap-3">
-                    <span
-                      className={`text-5xl font-black tracking-tight tabular-nums transition-all duration-300 sm:text-6xl md:text-7xl ${
+                  {/* Value and Unit Display with Blur Loading Transition */}
+                  <div className="relative flex items-baseline">
+                    {/* 숫자와 단위 표시: 로딩 중일 때 blur 및 반투명 처리 */}
+                    <div
+                      className={`flex items-baseline gap-3 transition-all duration-500 ${
                         isRefreshing
-                          ? 'scale-[0.99] text-blue-600/75 blur-[0.3px] dark:text-blue-400/80'
-                          : 'text-neutral-900 dark:text-white'
+                          ? 'pointer-events-none scale-[0.98] opacity-35 blur-[5px] select-none'
+                          : 'blur-0 scale-100 opacity-100'
                       }`}
                     >
-                      {currentReading !== null ? (
-                        <NumberFlow
-                          value={animatedValue}
-                          trend={1}
-                          spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-                        />
-                      ) : (
-                        '---'
-                      )}
-                    </span>
-                    <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
-                      {currentReading?.unit || ''}
-                    </span>
+                      <span className="text-5xl font-black tracking-tight text-neutral-900 tabular-nums sm:text-6xl md:text-7xl dark:text-white">
+                        {currentReading !== null ? (
+                          <NumberFlow
+                            value={animatedValue}
+                            trend={1}
+                            spinTiming={{ duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                          />
+                        ) : (
+                          '---'
+                        )}
+                      </span>
+                      <span className="text-xl font-bold text-neutral-500 sm:text-2xl dark:text-neutral-400">
+                        {currentReading?.unit || ''}
+                      </span>
+                    </div>
+
+                    {/* 기온을 불러오는 중... Blur-in 글래스모피즘 인터랙티브 오버레이 */}
+                    {isRefreshing && (
+                      <div className="animate-blur-in pointer-events-none absolute inset-0 flex items-center">
+                        <div className="flex items-center gap-2.5 rounded-2xl border border-blue-200/90 bg-white/85 px-4 py-2 shadow-lg shadow-blue-500/10 backdrop-blur-xl dark:border-blue-700/80 dark:bg-neutral-900/85 dark:shadow-blue-950/30">
+                          <span className="relative flex h-2.5 w-2.5 shrink-0">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
+                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                          </span>
+                          <span className="animate-pulse text-sm font-extrabold tracking-tight text-blue-700 sm:text-base dark:text-blue-300">
+                            {selectedSourceId === 'usd-krw-exchange'
+                              ? '환율을 불러오는 중...'
+                              : '기온을 불러오는 중...'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Interactive Click Hint on Hover */}
-                    {activeMode === 'live' && (
-                      <span className="hidden text-xs text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 sm:inline-block dark:text-neutral-500">
+                    {activeMode === 'live' && !isRefreshing && (
+                      <span className="ml-3 hidden text-xs text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 sm:inline-block dark:text-neutral-500">
                         (클릭하여 새로고침)
                       </span>
                     )}

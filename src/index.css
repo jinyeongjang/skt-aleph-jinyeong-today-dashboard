@@ -236,3 +236,21 @@ html.dark .glass-glow {
 .animate-thermometer-bob {
   animation: thermometer-bob 1s ease-in-out infinite;
 }
+
+/* 블러가 풀리며 텍스트가 선명하게 나타나는 인터랙티브 애니메이션 */
+@keyframes blur-in {
+  0% {
+    filter: blur(10px);
+    opacity: 0;
+    transform: translateY(4px) scale(0.95);
+  }
+  100% {
+    filter: blur(0px);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-blur-in {
+  animation: blur-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
